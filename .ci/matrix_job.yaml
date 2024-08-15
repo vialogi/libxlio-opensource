@@ -344,9 +344,22 @@ steps:
       SPRING_APPLICATION_JSON: '{"blackduck.url":"https://blackduck.mellanox.com/","blackduck.api.token":"ODMwOWYwMzEtODA2ZC00MzBjLWI1ZDEtNmFiMjBkYzQzMzkwOjNmNjExN2M1LWE2ZmEtNDZlYS1hZjRiLTZlNDgwNjAwOTVjNw=="}'
 
 pipeline_start:
+  shell: action
+  module: groovy
   run: |
-    printenv
-    echo "Start"
+    def extraDescription = ''
+    if (params.ghprbActualCommit) {
+      extraDescription = "${params.ghprbTargetBranch}-${params.ghprbPullAuthorLogin}"
+    } else {
+      extraDescription = "manual-${sha1}"
+      }
+    }
+    currentBuild.displayName += "-${extraDescription}"
+    def envVars = System.getenv()
+    envVars.each { key, value ->
+        println "${key} = ${value}"
+    }
+    println("Start")
 
 pipeline_stop:
   run: |
